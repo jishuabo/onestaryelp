@@ -1,0 +1,38 @@
+// Place all the styles related to the StaticPages controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+body, html{
+	height: 100%;
+	font-family: Arial, sans-serif;
+}
+
+body{
+	position: relative;
+}
+
+a{
+	color: #951b27;
+}
+
+#button_bg{
+	position: absolute;
+	top: 5%;
+	background: #FFF;
+	background: rgba(255, 255, 255, 0.5);
+	z-index: 2000;
+	left: 50%;
+	margin-left: -305px;
+	padding: 8px;
+	border-radius: 10px;
+	text-align: center;
+}
+
+#address{
+	height: 37px;
+	padding: 8px;
+	border-radius: 5px;
+	vertical-align: bottom;
+	font-size: 20px;
+	width: 400px;
+}

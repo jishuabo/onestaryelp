@@ -1,0 +1,116 @@
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    var geocoder;
+	var map;
+	var customIcons = {
+      Star: {
+        icon: 'star.png',
+        shadow: 'star-icon-shadow.png'
+      }
+    };
+	
+	function myTimestamp(){
+		tstmp = new Date();    
+		return tstmp.getTime();
+	} 
+
+    function load() {
+        geocoder = new google.maps.Geocoder();
+		map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        mapTypeId: 'roadmap'
+      });
+      var infoWindow = new google.maps.InfoWindow;
+
+      // Change this depending on the name of your results location
+      downloadUrl("/location/show" +"?avoidcahe=" + myTimestamp(), function(data) {
+        var xml = data.responseXML;
+        var markers = xml.documentElement.getElementsByTagName("location");
+        for (var i = 0; i < markers.length; i++) {
+          //var name = markers[i].getAttribute("name");
+          //var address = markers[i].getAttribute("address");
+          //var type = markers[i].getAttribute("product");
+          //var point = new google.maps.LatLng(
+              //parseFloat(markers[i].getAttribute("lat")),
+              //parseFloat(markers[i].getAttribute("long")));
+         // var html = type + "<br />" + markers[i].getAttribute("store") + "<br />" + markers[i].getAttribute("address") + "<br />" + "<em>Check your local store for availability.</em>" ;
+			var point = new google.maps.LatLng(
+              parseFloat(xml.getElementsByTagName("lat")[i].childNodes[0].nodeValue),
+              parseFloat(xml.getElementsByTagName("long")[i].childNodes[0].nodeValue));
+			var html = "<a href='http://yelp.com/biz/" + xml.getElementsByTagName("yelpid")[i].childNodes[0].nodeValue + "'>" + xml.getElementsByTagName("name")[i].childNodes[0].nodeValue + "</a>" + "<br />" + "tags: " + xml.getElementsByTagName("description")[i].childNodes[0].nodeValue + "<br />" + "<a href='http://yelp.com/biz/" + xml.getElementsByTagName("yelpid")[i].childNodes[0].nodeValue + "'>View on Yelp</a>";
+          var icon = customIcons["Star"] || {};
+          var marker = new google.maps.Marker({
+            map: map,
+            position: point,
+            icon: icon.icon,
+            shadow: icon.shadow
+          });
+          bindInfoWindow(marker, map, infoWindow, html);
+        }
+      });
+		
+	  codeAddress();	
+
+    }
+
+	function codeAddress() {
+	    var address = document.getElementById("address").value;
+	    geocoder.geocode( { 'address': address}, function(results, status) {
+	      if (status == google.maps.GeocoderStatus.OK) {
+	        map.setCenter(results[0].geometry.location);
+	        /*var marker = new google.maps.Marker({
+	            map: map,
+	            position: results[0].geometry.location
+	        });*/
+	      } else {
+	        alert("Geocode was not successful for the following reason: " + status);
+	      }
+	    });
+	  }
+
+    function bindInfoWindow(marker, map, infoWindow, html) {
+      google.maps.event.addListener(marker, 'click', function() {
+        infoWindow.setContent(html);
+        infoWindow.open(map, marker);
+      });
+    }
+
+    function downloadUrl(url, callback) {
+      var request = window.ActiveXObject ?
+          new ActiveXObject('Microsoft.XMLHTTP') :
+          new XMLHttpRequest;
+
+      request.onreadystatechange = function() {
+        if (request.readyState == 4) {
+          request.onreadystatechange = doNothing;
+          callback(request, request.status);
+        }
+      };
+
+      request.open('GET', url, true);
+      request.send(null);
+    }
+
+    function doNothing() {}
+
+    //]]>
+
+  </script>
+  
+  <script type="text/javascript">
+		
+		$(document).ready(function(){
+			
+			load();
+		
+		});
+		
+	</script>
+	<div id="button_bg">
+	    <input id="address" type="textbox" value="East Village, NY">
+	    <input type="image" src="/assets/search.png" value="Encode" onclick="codeAddress()">
+	  </div>
+    <div id="map" style="height: 100%;"></div>
